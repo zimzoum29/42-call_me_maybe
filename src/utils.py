@@ -6,6 +6,7 @@ from typing import Any
 class JsonError(Exception):
     ...
 
+
 def read_json(path: str) -> Any:
     try:
         with open(path, "r", encoding="utf-8") as file_obj:

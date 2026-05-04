@@ -29,7 +29,7 @@ class Parameter(BaseModel):
 
 
 class FunctionDefinition(BaseModel):
-    
+
     model_config = ConfigDict(extra="forbid")
 
     name: str

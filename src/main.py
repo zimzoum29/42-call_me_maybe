@@ -13,7 +13,7 @@ from src.models import (
 from src.utils import JsonError, read_json, write_json
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args() -> dict:
     parser = argparse.ArgumentParser(
         description="Generate schema-valid function calls from prompts."
     )
@@ -86,14 +86,18 @@ def run(
 
     engine = FunctionCallingEngine(functions)
     decoder = ConstrainedDecoder(engine, Grammar(functions))
-    results = [decode_prompt(decoder, engine, item.prompt, visualize) for item in prompts]
+    results = [decode_prompt(decoder, engine, item.prompt, visualize)
+               for item in prompts]
     write_json(output_path, results)
 
 
 def main() -> None:
     args = parse_args()
     try:
-        run(args.get("functions_definition"), args.get("input"), args.get("output"), args.get("visualize"))
+        run(args.get("functions_definition"),
+            args.get("input"),
+            args.get("output"),
+            args.get("visualize"))
         print("Program finished successfully.")
     except Exception as error:
         print(f"[ERROR] {error}")
