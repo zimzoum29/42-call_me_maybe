@@ -1,3 +1,9 @@
+"""Command line interface for generating schema-valid function calls.
+
+This module wires together the engine, grammar and constrained
+decoder and exposes a small CLI used during development and testing.
+"""
+
 import argparse
 import json
 from typing import Any, TypedDict
@@ -21,6 +27,11 @@ class CLIArgs(TypedDict):
 
 
 def parse_args() -> CLIArgs:
+    """Parse and return command-line arguments.
+
+    Returns:
+        A `CLIArgs` mapping containing resolved CLI options.
+    """
     parser = argparse.ArgumentParser(
         description="Generate schema-valid function calls from prompts."
     )
@@ -59,6 +70,22 @@ def decode_prompt(
     user_prompt: str,
     visualize: bool,
 ) -> dict[str, Any]:
+    """Generate a schema-valid function call from `user_prompt`.
+
+    Args:
+        decoder: `ConstrainedDecoder` instance used for generation.
+        engine: `FunctionCallingEngine` providing prompt and tokens.
+        user_prompt: The natural-language request to transform.
+        visualize: If True, print intermediate output to stdout.
+
+    Returns:
+        A dict with keys `prompt`, `name` and `parameters` representing
+        the validated function call.
+
+    Raises:
+        JsonError: If the decoder returns invalid JSON despite
+            constraints.
+    """
     if visualize is True:
         print()
         print("Prompt:", user_prompt)
@@ -89,6 +116,14 @@ def run(
     output_path: str,
     visualize: bool,
 ) -> None:
+    """Run the generation pipeline and write results to `output_path`.
+
+    Args:
+        functions_definition_path: Path to function schema definitions.
+        input_path: Path to input prompts file.
+        output_path: Destination for generated results.
+        visualize: Whether to print live decoding information.
+    """
     raw_functions = read_json(functions_definition_path)
     raw_prompts = read_json(input_path)
     functions = validate_function_definitions(raw_functions)
@@ -105,6 +140,10 @@ def run(
 
 
 def main() -> None:
+    """CLI entrypoint: parse args and run the pipeline.
+
+    Any uncaught exception is printed to stdout prefixed with [ERROR].
+    """
     args = parse_args()
     try:
         run(
