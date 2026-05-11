@@ -1,6 +1,6 @@
 import argparse
 import json
-from typing import Any
+from typing import Any, TypedDict
 
 from src.decoder import ConstrainedDecoder
 from src.grammar import Grammar, normalize_types
@@ -13,7 +13,14 @@ from src.models import (
 from src.utils import JsonError, read_json, write_json
 
 
-def parse_args() -> dict:
+class CLIArgs(TypedDict):
+    functions_definition: str
+    input: str
+    output: str
+    visualize: bool
+
+
+def parse_args() -> CLIArgs:
     parser = argparse.ArgumentParser(
         description="Generate schema-valid function calls from prompts."
     )
@@ -37,7 +44,13 @@ def parse_args() -> dict:
         action="store_true",
         help="Display live decoding in the terminal.",
     )
-    return vars(parser.parse_args())
+    args = parser.parse_args()
+    return {
+        "functions_definition": args.functions_definition,
+        "input": args.input,
+        "output": args.output,
+        "visualize": args.visualize,
+    }
 
 
 def decode_prompt(
@@ -94,10 +107,12 @@ def run(
 def main() -> None:
     args = parse_args()
     try:
-        run(args.get("functions_definition"),
-            args.get("input"),
-            args.get("output"),
-            args.get("visualize"))
+        run(
+            args["functions_definition"],
+            args["input"],
+            args["output"],
+            args["visualize"],
+        )
         print("Program finished successfully.")
     except Exception as error:
         print(f"[ERROR] {error}")

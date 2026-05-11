@@ -87,17 +87,6 @@ class ConstrainedDecoder:
             )
         return valid_best
 
-    def _debug_mask_logits(
-        self,
-        generated_text: str,
-        logits: list[float],
-    ) -> list[float]:
-        masked = [-inf for _ in logits]
-        for token_id, logit in enumerate(logits):
-            if self._is_valid_token(generated_text, token_id):
-                masked[token_id] = logit
-        return masked
-
     def generate(
         self,
         prompt_text: str,
