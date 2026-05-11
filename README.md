@@ -4,7 +4,7 @@
 
 ## Description
 
-Call Me Maybe is a small function-calling system for local language models. It reads natural-language prompts and function definitions, then outputs structured function calls in JSON:
+Call Me Maybe is a function-calling system for local language models. It reads natural-language prompts and function definitions, then outputs structured function calls in JSON:
 
 ```json
 {
@@ -14,7 +14,7 @@ Call Me Maybe is a small function-calling system for local language models. It r
 }
 ```
 
-The program does not ask the model to freely write JSON and hope that the result is valid. Instead, it uses constrained decoding: every next token proposed by the model is checked against a schema-aware JSON grammar before it can be selected.
+The program does not ask the model to freely write JSON and hope that the result is valid. Instead, it uses constrained decoding: every next token proposed by the model is checked against a JSON grammar before it can be selected.
 
 ## Instructions
 
@@ -45,10 +45,22 @@ Clean generated files:
 make clean
 ```
 
+Debug Mode:
+
+```bash
+make debug
+```
+
 Lint:
 
 ```bash
 make lint
+```
+
+Lint Strict:
+
+```bash
+make lint-strict
 ```
 
 ## Algorithm explanation
@@ -63,9 +75,8 @@ At every generation step:
 2. The LLM returns logits for the next token over the whole vocabulary.
 3. The decoder tests candidate tokens by decoding each token id into text and appending it to the current output prefix.
 4. The resulting prefix must still match at least one valid branch of the grammar.
-5. Invalid tokens are treated as if their logits were `-inf`.
-6. The highest-logit valid token is appended.
-7. Generation stops only when the complete output is a valid schema-compliant JSON object.
+5. The highest-logit valid token is appended.
+6. Generation stops only when the complete output is a valid schema-compliant JSON object.
 
 The grammar is not only a JSON checker. It also encodes the expected schema:
 
@@ -93,6 +104,8 @@ Each function definition becomes one grammar branch. The global grammar is the u
 The decoder checks the highest-logit tokens first for performance. If none of those tokens is valid, it scans the rest of the vocabulary. This keeps the behavior equivalent to masked decoding while avoiding unnecessary work in common cases.
 
 The code avoids private attributes of `llm_sdk` and only uses the public methods required by the subject: encoding, decoding, and next-token logits.
+
+The default model is `Qwen/Qwen3-0.6B`, but you can use `cyberbabooshka/base_noreasoning` to demonstrate that the project works with a different model
 
 ## Performance analysis
 
@@ -158,4 +171,4 @@ Expected output shape:
 - The provided `llm_sdk` wrapper.
 - General documentation on constrained decoding and structured generation.
 
-AI was used to review the project architecture, identify why prefix checking alone was not enough, and help rewrite the implementation and README. The final code should be understood, tested, and defended by the authors.
+AI was used to review the project architecture, understand what is clearly constrained decoding, and help to test effectively the program. The final code should be understood, tested, and defended by the authors.

@@ -12,7 +12,7 @@ class FunctionCallingEngine:
     def __init__(
         self,
         function_definitions: list[FunctionDefinition],
-        model_name: str = "Qwen/Qwen3-0.6B",
+        model_name: str = "cyberbabooshka/base_noreasoning",
     ) -> None:
         if not function_definitions:
             raise JsonError("At least one function definition is required.")
